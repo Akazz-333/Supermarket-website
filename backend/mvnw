@@ -1,0 +1,55 @@
+#!/bin/sh
+# ----------------------------------------------------------------------------
+# Maven Start Up Batch script
+# ----------------------------------------------------------------------------
+
+# OS specific support.  $var _must_ be set to true or false.
+cygwin=false;
+darwin=false;
+mingw=false
+case "`uname`" in
+  CYGWIN*) cygwin=true ;;
+  MINGW*) mingw=true;;
+  Darwin*) darwin=true;;
+esac
+
+## Chill: handle standard POSIX shell
+if [ -z "$MAVEN_SKIP_RC" ] ; then
+  if [ -f /etc/mavenrc ] ; then
+    . /etc/mavenrc
+  fi
+  if [ -f "$HOME/.mavenrc" ] ; then
+    . "$HOME/.mavenrc"
+  fi
+fi
+
+if [ -z "$JAVA_HOME" ] ; then
+  case "`uname`" in
+    Darwin*)
+      if [ -usr/libexec/java_home ] ; then
+        export JAVA_HOME=`/usr/libexec/java_home`
+      fi
+      ;;
+  esac
+fi
+
+PRG="$0"
+
+while [ -h "$PRG" ]; do
+  ls=`ls -ld "$PRG"`
+  link=`expr "$ls" : '.*-> \(.*\)$'`
+  if expr "$link" : '/.*' > /dev/null; then
+    PRG="$link"
+  else
+    PRG=`dirname "$PRG"`/"$link"
+  fi
+done
+
+PRGDIR=`dirname "$PRG"`
+BASE_DIR=`cd "$PRGDIR" >/dev/null; pwd`
+
+# Reset imports
+JAVACMD="java"
+which mvn >/dev/null 2>&1 && MAVEN_CMD="mvn" || MAVEN_CMD=""
+
+exec mvn "$@"
