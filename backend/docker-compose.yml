@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  mysqldb:
+    image: mysql:8.0
+    container_name: supermarket-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: supermarket_db
+      MYSQL_USER: supermarket_user
+      MYSQL_PASSWORD: supermarket_pass
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build: .
+    container_name: supermarket-api
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      DB_HOST: mysqldb
+      DB_PORT: 3306
+      DB_NAME: supermarket_db
+      DB_USERNAME: supermarket_user
+      DB_PASSWORD: supermarket_pass
+      JWT_SECRET: 9a2f8c4e7b1d3f6a8e5c2b0d4f6a8c1e3b5d7f9a2c4e6b8d0f2a4c6e8b0d2f4a
+    depends_on:
+      mysqldb:
+        condition: service_healthy
+
+volumes:
+  mysql_data:

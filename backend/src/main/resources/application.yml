@@ -1,0 +1,25 @@
+spring:
+  profiles:
+    active: prod
+  application:
+    name: supermarket-inventory-api
+
+server:
+  port: 8081
+  error:
+    include-message: always
+
+# JWT Configuration
+app:
+  jwt:
+    secret: 9a2f8c4e7b1d3f6a8e5c2b0d4f6a8c1e3b5d7f9a2c4e6b8d0f2a4c6e8b0d2f4a
+    expiration-ms: 86400000 # 24 hours
+
+# OpenAPI / Swagger Config
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+    tags-sorter: alpha

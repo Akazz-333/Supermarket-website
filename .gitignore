@@ -1,0 +1,21 @@
+# Maven & Build Target
+backend/target/
+target/
+*.class
+*.jar
+*.war
+
+# IDEs & Editor Configuration
+.idea/
+.vscode/
+*.swp
+*.tmp
+
+# System Files
+.DS_Store
+Thumbs.db
+*.log
+
+# Environment variables & secrets
+.env
+*.env

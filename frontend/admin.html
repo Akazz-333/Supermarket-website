@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SB Marts - Executive Admin & Control Panel</title>
+    <meta name="description" content="SB Marts Supermarket & Grocery Inventory, Stock Operations, Category Organization, Order Processing, and Analytics Dashboard">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Base Styles & Enterprise Admin Styles -->
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="admin-theme.css">
+</head>
+<body class="admin-body">
+
+    <!-- Enterprise Header Navbar -->
+    <header class="admin-navbar">
+        <div class="admin-brand">
+            <div class="admin-brand-icon">
+                <i class="fa-solid fa-user-gear"></i>
+            </div>
+            <span>SB<span style="color: #818cf8;">Marts Admin</span></span>
+        </div>
+
+        <ul class="admin-nav-menu">
+            <li><a href="#" class="nav-link admin-nav-link active" data-target="admin-dashboard-view"><i class="fa-solid fa-chart-line"></i> Dashboard</a></li>
+            <li><a href="#" class="nav-link admin-nav-link" data-target="admin-inventory-view"><i class="fa-solid fa-boxes-stacked"></i> Inventory</a></li>
+            <li><a href="#" class="nav-link admin-nav-link" data-target="admin-products-view"><i class="fa-solid fa-box"></i> Products</a></li>
+            <li><a href="#" class="nav-link admin-nav-link" data-target="admin-categories-view"><i class="fa-solid fa-layer-group"></i> Categories</a></li>
+            <li><a href="#" class="nav-link admin-nav-link" data-target="admin-orders-view"><i class="fa-solid fa-receipt"></i> Orders</a></li>
+        </ul>
+
+        <div class="nav-actions">
+            <!-- Active Admin Badge -->
+            <div class="auth-badge" id="adminRoleBadge" style="border-color: #334155;">
+                <i class="fa-solid fa-shield-halved" style="color: #ef4444;"></i>
+                <span id="adminUserName">admin@supermarket.com</span>
+                <span class="role-pill admin" id="adminRoleTag" style="background:#ef4444;">ROLE_ADMIN</span>
+            </div>
+
+            <button class="theme-toggle-btn" id="themeToggleBtn" title="Toggle Theme">
+                <i class="fa-solid fa-moon"></i>
+            </button>
+
+            <!-- Storefront Link -->
+            <a href="index.html" class="btn btn-primary btn-sm" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); border:none;" title="Go to Customer Storefront">
+                <i class="fa-solid fa-store"></i> Storefront
+            </a>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="main-container">
+
+        <!-- VIEW 1: EXECUTIVE DASHBOARD (ADMIN) -->
+        <section id="admin-dashboard-view" class="view-section active">
+            <div class="admin-hero-banner">
+                <div>
+                    <h1 class="admin-hero-title">Supermarket Operations Dashboard</h1>
+                    <p class="admin-hero-subtitle">Real-time analytics fetched directly from the Spring Boot MySQL database. Monitor revenue, low-stock warnings, and orders.</p>
+                </div>
+                <button class="btn btn-primary" id="refreshDashboardBtn" style="background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); border:none;"><i class="fa-solid fa-rotate"></i> Sync Database</button>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="admin-stat-grid">
+                <div class="admin-stat-card">
+                    <div class="admin-stat-icon green"><i class="fa-solid fa-box-open"></i></div>
+                    <div>
+                        <div class="admin-stat-value" id="adminStatTotalProducts">0</div>
+                        <div class="admin-stat-label">Total Products</div>
+                    </div>
+                </div>
+
+                <div class="admin-stat-card">
+                    <div class="admin-stat-icon yellow"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                    <div>
+                        <div class="admin-stat-value" id="adminStatLowStock">0</div>
+                        <div class="admin-stat-label">Low Stock Alerts</div>
+                    </div>
+                </div>
+
+                <div class="admin-stat-card">
+                    <div class="admin-stat-icon red"><i class="fa-solid fa-ban"></i></div>
+                    <div>
+                        <div class="admin-stat-value" id="adminStatOutOfStock">0</div>
+                        <div class="admin-stat-label">Out of Stock Items</div>
+                    </div>
+                </div>
+
+                <div class="admin-stat-card">
+                    <div class="admin-stat-icon blue"><i class="fa-solid fa-receipt"></i></div>
+                    <div>
+                        <div class="admin-stat-value" id="adminStatTotalOrders">0</div>
+                        <div class="admin-stat-label">Total Orders</div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem;">
+                <div class="admin-table-card" style="padding: 1.5rem;">
+                    <h3>Sales Revenue & Order Breakdown</h3>
+                    <div style="margin-top: 1rem;">
+                        <h4 style="font-size: 2.2rem; color: #10b981; font-weight: 800;" id="adminStatTotalRevenue">$0.00</h4>
+                        <p style="color: #94a3b8; font-size: 0.85rem;">Total Confirmed Order Sales</p>
+                    </div>
+                    <div style="margin-top: 1.5rem;" id="adminOrderStatusBreakdown">
+                        <!-- Order status breakdown -->
+                    </div>
+                </div>
+
+                <div class="admin-table-card" style="padding: 1.5rem;">
+                    <h3>Critical Restock Warning Alerts</h3>
+                    <div style="margin-top: 1rem;" id="adminLowStockAlertsList">
+                        <!-- List of items needing restock -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW 2: INVENTORY & STOCK OPERATIONS -->
+        <section id="admin-inventory-view" class="view-section">
+            <div class="admin-hero-banner">
+                <div>
+                    <h2 class="admin-hero-title">Stock Operations & Audit Log</h2>
+                    <p class="admin-hero-subtitle">Stock-In additions, Stock-Out deductions, and real-time inventory movement history.</p>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.25rem;">
+                <!-- Inventory Table -->
+                <div class="admin-table-card">
+                    <div class="admin-table-header">
+                        <h3>Inventory Stock Level Monitor</h3>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="admin-custom-table">
+                            <thead>
+                                <tr>
+                                    <th>SKU</th>
+                                    <th>Product Name</th>
+                                    <th>Category</th>
+                                    <th>Current Stock</th>
+                                    <th>Min Threshold</th>
+                                    <th>Stock Operations</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adminInventoryTableBody">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Stock Movement Audit Log -->
+                <div class="admin-table-card">
+                    <div class="admin-table-header">
+                        <h3>Stock Movement Audit History</h3>
+                    </div>
+                    <div style="padding: 1rem; max-height: 500px; overflow-y: auto;" id="adminMovementHistoryLog">
+                        <!-- Movement entries rendered dynamically -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW 3: PRODUCT MANAGEMENT -->
+        <section id="admin-products-view" class="view-section">
+            <div class="admin-hero-banner">
+                <div>
+                    <h2 class="admin-hero-title">Grocery Product Catalog Management</h2>
+                    <p class="admin-hero-subtitle">Add, edit, or remove products from the database repository.</p>
+                </div>
+                <button class="btn btn-primary" id="openAddProductModalBtn" style="background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); border:none;"><i class="fa-solid fa-plus"></i> Add New Product</button>
+            </div>
+
+            <div class="admin-table-card">
+                <div class="table-responsive">
+                    <table class="admin-custom-table">
+                        <thead>
+                            <tr>
+                                <th>SKU</th>
+                                <th>Product Name</th>
+                                <th>Category</th>
+                                <th>Price</th>
+                                <th>Stock</th>
+                                <th>Supplier</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminProductsTableBody">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW 4: CATEGORY ORGANIZATION -->
+        <section id="admin-categories-view" class="view-section">
+            <div class="admin-hero-banner">
+                <div>
+                    <h2 class="admin-hero-title">Category Organization</h2>
+                    <p class="admin-hero-subtitle">Manage grocery categories. Prevents deleting categories containing active products.</p>
+                </div>
+                <button class="btn btn-primary" id="openAddCategoryModalBtn" style="background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); border:none;"><i class="fa-solid fa-folder-plus"></i> New Category</button>
+            </div>
+
+            <div class="admin-table-card">
+                <div class="table-responsive">
+                    <table class="admin-custom-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Category Name</th>
+                                <th>Description</th>
+                                <th>Associated Products</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminCategoriesTableBody">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW 5: ORDER LIFECYCLE WORKFLOW -->
+        <section id="admin-orders-view" class="view-section">
+            <div class="admin-hero-banner">
+                <div>
+                    <h2 class="admin-hero-title">Customer Orders Lifecycle Management</h2>
+                    <p class="admin-hero-subtitle">Workflow: PENDING → CONFIRMED (Deducts DB Stock) → SHIPPED → DELIVERED | CANCELLED (Restores DB Stock)</p>
+                </div>
+                <button class="btn btn-primary" id="refreshAdminOrdersBtn" style="background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); border:none;"><i class="fa-solid fa-rotate"></i> Sync Orders</button>
+            </div>
+
+            <!-- Order Status Filter Chips -->
+            <div class="category-filter-bar" id="adminOrderStatusChips" style="margin-bottom: 1.25rem;">
+                <div class="category-chip active" onclick="filterAdminOrdersByStatus('')">All Orders</div>
+                <div class="category-chip" onclick="filterAdminOrdersByStatus('PENDING')">PENDING</div>
+                <div class="category-chip" onclick="filterAdminOrdersByStatus('CONFIRMED')">CONFIRMED</div>
+                <div class="category-chip" onclick="filterAdminOrdersByStatus('SHIPPED')">SHIPPED</div>
+                <div class="category-chip" onclick="filterAdminOrdersByStatus('DELIVERED')">DELIVERED</div>
+                <div class="category-chip" onclick="filterAdminOrdersByStatus('CANCELLED')">CANCELLED</div>
+            </div>
+
+            <div class="admin-table-card">
+                <div class="table-responsive">
+                    <table class="admin-custom-table">
+                        <thead>
+                            <tr>
+                                <th>Order #</th>
+                                <th>Customer Details</th>
+                                <th>Grocery Items</th>
+                                <th>Total Bill</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                                <th>Actions & Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminOrdersTableBody">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ADMIN ORDER DETAILS MODAL -->
+    <div class="modal-overlay" id="adminOrderDetailModal">
+        <div class="modal-box drawer-content" style="max-width: 560px;">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-receipt" style="color: #6366f1;"></i> Full Order Details</h3>
+                <button class="modal-close" id="closeAdminOrderModalBtn">&times;</button>
+            </div>
+            <div class="modal-body" id="adminOrderDetailModalBody">
+                <!-- Dynamically populated order details -->
+            </div>
+        </div>
+    </div>
+
+    <!-- STOCK ADJUSTMENT MODAL -->
+    <div class="modal-overlay" id="adminStockModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3 id="adminStockModalTitle">Stock Adjustment</h3>
+                <button class="modal-close" id="closeAdminStockModalBtn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="adminStockForm">
+                    <input type="hidden" id="adminStockProductId">
+                    <input type="hidden" id="adminStockType">
+                    <div class="form-group">
+                        <label class="form-label">Product</label>
+                        <input type="text" id="adminStockProductName" class="form-control" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Quantity *</label>
+                        <input type="number" id="adminStockQuantity" class="form-control" min="1" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Reason / Notes</label>
+                        <input type="text" id="adminStockReason" class="form-control" placeholder="Vendor shipment received">
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%; background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); border:none;">Submit Adjustment to DB</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- CREATE PRODUCT MODAL -->
+    <div class="modal-overlay" id="adminProductModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-box" style="color:#6366f1;"></i> Create New Product</h3>
+                <button class="modal-close" id="closeAdminProductModalBtn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="adminProductForm">
+                    <div class="form-group">
+                        <label class="form-label">SKU (e.g. SKU-RICE02) *</label>
+                        <input type="text" id="apSku" class="form-control" placeholder="SKU-XXXXX" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Product Name *</label>
+                        <input type="text" id="apName" class="form-control" placeholder="e.g. Jasmine Fragrant Rice 2kg" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Category *</label>
+                        <select id="apCategory" class="form-control" required></select>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="form-group">
+                            <label class="form-label">Price ($) *</label>
+                            <input type="number" step="0.01" id="apPrice" class="form-control" placeholder="8.99" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Initial Stock *</label>
+                            <input type="number" id="apStock" class="form-control" placeholder="40" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Low-Stock Min Threshold *</label>
+                        <input type="number" id="apMinStock" class="form-control" value="5" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Supplier Name</label>
+                        <input type="text" id="apSupplier" class="form-control" placeholder="Global Traders">
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%; background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); border:none;">Save Product to Database</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- CREATE CATEGORY MODAL -->
+    <div class="modal-overlay" id="adminCategoryModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-folder-plus" style="color:#6366f1;"></i> Create New Category</h3>
+                <button class="modal-close" id="closeAdminCategoryModalBtn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="adminCategoryForm">
+                    <div class="form-group">
+                        <label class="form-label">Category Name *</label>
+                        <input type="text" id="acName" class="form-control" placeholder="e.g. Snacks & Chips" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Description</label>
+                        <input type="text" id="acDesc" class="form-control" placeholder="Potato chips, nuts, and chocolate bars">
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%; background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); border:none;">Save Category to Database</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Admin Panel JS Logic -->
+    <script src="admin-app.js"></script>
+</body>
+</html>

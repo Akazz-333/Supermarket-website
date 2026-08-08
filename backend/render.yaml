@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: supermarket-inventory-api
+    env: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: dev # Uses H2 in-memory for zero-config Render web service
+      - key: JWT_SECRET
+        generateValue: true
