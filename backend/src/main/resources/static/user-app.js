@@ -910,6 +910,10 @@ document.getElementById('checkoutForm')?.addEventListener('submit', async (e) =>
         sharedOrders.unshift(newOrderObj);
         localStorage.setItem('sbmarts_shared_orders', JSON.stringify(sharedOrders));
 
+        const myOrderNums = JSON.parse(localStorage.getItem('sbmarts_my_order_numbers') || '[]');
+        myOrderNums.unshift(newOrderObj.orderNumber);
+        localStorage.setItem('sbmarts_my_order_numbers', JSON.stringify(myOrderNums));
+
         userState.myOrders.unshift(newOrderObj);
         userState.cart = [];
         updateCartUI();
@@ -937,12 +941,12 @@ function createLocalOrderFallback(custName, custEmail, custPhone, custNotes, tot
     return orderObj;
 }
 
-// Fetch Customer Orders & Shared Orders
+// Fetch Customer Orders & Shared Orders (Filtered strictly for current customer)
 async function fetchMyOrders() {
     let apiOrders = [];
     try {
         const headers = userState.token ? { 'Authorization': `Bearer ${userState.token}` } : {};
-        const res = await fetch(`${API_BASE_URL}/orders?size=50`, { headers });
+        const res = await fetch(`${API_BASE_URL}/orders?size=100`, { headers });
         const data = await res.json();
 
         if (data.success && data.data) {
@@ -953,14 +957,28 @@ async function fetchMyOrders() {
     }
 
     const sharedOrders = JSON.parse(localStorage.getItem('sbmarts_shared_orders') || '[]');
-    
+    const myOrderNums = JSON.parse(localStorage.getItem('sbmarts_my_order_numbers') || '[]');
+    const userEmail = (userState.currentUser?.email || userState.currentUser?.username || '').toLowerCase();
+    const userPhone = userState.currentUser?.phone || '';
+
     // Merge API orders + Shared orders
     const combinedMap = new Map();
     [...sharedOrders, ...apiOrders].forEach(o => {
         if (o && o.orderNumber) combinedMap.set(o.orderNumber, o);
     });
 
-    userState.myOrders = Array.from(combinedMap.values());
+    const allOrders = Array.from(combinedMap.values());
+
+    // Filter strictly for orders belonging to this customer
+    userState.myOrders = allOrders.filter(o => {
+        if (myOrderNums.includes(o.orderNumber)) return true;
+        const oEmail = (o.customerEmail || '').toLowerCase();
+        const oPhone = (o.customerPhone || '');
+        if (userEmail && oEmail && oEmail === userEmail) return true;
+        if (userPhone && oPhone && oPhone === userPhone) return true;
+        return false;
+    });
+
     renderMyOrdersTable();
 }
 
